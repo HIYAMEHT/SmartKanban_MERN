@@ -14,5 +14,8 @@ app.use(helmet());
 app.use(cors({origin:process.env.CORS_ORIGIN,credentials:true}))
 // app.use(mongoSanitization());
 
+const workloadRoutes = require("./modules/workload/routes/workload.routes");
+
+app.use("/workload", workloadRoutes);
 
 module.exports = app
