@@ -1,33 +1,77 @@
 const jwt = require("jsonwebtoken");
 
-const getAccessSecret = () =>
-  process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
-const getRefreshSecret = () =>
-  process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+const getAccessSecret = () => {
+  if (!process.env.JWT_ACCESS_SECRET) {
+    throw new Error("JWT_ACCESS_SECRET is missing");
+  }
 
-const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, getAccessSecret(), {
-    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
-  });
+  return process.env.JWT_ACCESS_SECRET;
 };
 
-const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId, type: "refresh" }, getRefreshSecret(), {
-    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
-  });
+const getRefreshSecret = () => {
+  if (!process.env.JWT_REFRESH_SECRET) {
+    throw new Error("JWT_REFRESH_SECRET is missing");
+  }
+
+  return process.env.JWT_REFRESH_SECRET;
 };
 
-const generateToken = (userId) => {
-  return generateAccessToken(userId);
+
+// Generate Access Token
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id.toString(),
+      role: user.role,
+    },
+    getAccessSecret(),
+    {
+      expiresIn:
+        process.env.JWT_ACCESS_EXPIRES_IN || "15m",
+    }
+  );
 };
 
-const verifyToken = (token, secret = getAccessSecret()) => {
-  return jwt.verify(token, secret);
+
+// Generate Refresh Token
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id.toString(),
+      type: "refresh",
+    },
+    getRefreshSecret(),
+    {
+      expiresIn:
+        process.env.JWT_REFRESH_EXPIRES_IN || "7d",
+    }
+  );
 };
 
+
+// Generate normal access token
+const generateToken = (user) => {
+  return generateAccessToken(user);
+};
+
+
+// Verify Access Token
+const verifyToken = (token) => {
+  return jwt.verify(
+    token,
+    getAccessSecret()
+  );
+};
+
+
+// Verify Refresh Token
 const verifyRefreshToken = (token) => {
-  return verifyToken(token, getRefreshSecret());
+  return jwt.verify(
+    token,
+    getRefreshSecret()
+  );
 };
+
 
 module.exports = {
   generateToken,

@@ -1,108 +1,121 @@
 const projectService = require("./project.service");
+const asyncHandler = require("../../utils/asyncHandler");
 
-const createProject = async (req, res) => {
-  try {
-    const project = await projectService.createProject(req.body);
+const createProject = asyncHandler(async (req, res) => {
+  const userId = req.user.userId;
 
-    return res.status(201).json({
-      success: true,
-      message: "Project created successfully",
-      data: project,
-    });
-  } catch (error) {
-    console.error("Create project error:", error);
+  const project = await projectService.createProject(
+    req.body,
+    userId
+  );
 
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  return res.status(201).json({
+    success: true,
+    message: "Project created successfully",
+    data: project,
+  });
+});
 
+const getProjects = asyncHandler(async (req, res) => {
+  const projects = await projectService.getProjects();
 
-const getProjects = async (req, res) => {
-  try {
-    const projects = await projectService.getProjects();
+  return res.status(200).json({
+    success: true,
+    count: projects.length,
+    data: projects,
+  });
+});
 
-    return res.status(200).json({
-      success: true,
-      data: projects,
-    });
-  } catch (error) {
-    console.error("Get projects error:", error);
+const getProjectById = asyncHandler(async (req, res) => {
+  const project = await projectService.getProjectById(
+    req.params.projectId
+  );
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  return res.status(200).json({
+    success: true,
+    data: project,
+  });
+});
 
+const updateProject = asyncHandler(async (req, res) => {
+  const project = await projectService.updateProject(
+    req.params.projectId,
+    req.body
+  );
 
-const getProjectById = async (req, res) => {
-  try {
-    const project = await projectService.getProjectById(
-      req.params.projectId
-    );
+  return res.status(200).json({
+    success: true,
+    message: "Project updated successfully",
+    data: project,
+  });
+});
 
-    return res.status(200).json({
-      success: true,
-      data: project,
-    });
-  } catch (error) {
-    console.error("Get project error:", error);
+const deleteProject = asyncHandler(async (req, res) => {
+  await projectService.deleteProject(
+    req.params.projectId
+  );
 
-    return res.status(404).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  return res.status(200).json({
+    success: true,
+    message: "Project deleted successfully",
+  });
+});
 
+const addMember = asyncHandler(async (req, res) => {
+  const memberUserId =
+    req.body.userId || req.body.memberUserId;
 
-const updateProject = async (req, res) => {
-  try {
-    const project = await projectService.updateProject(
-      req.params.projectId,
-      req.body
-    );
+  const project = await projectService.addMember(
+    req.params.projectId,
+    req.user.userId,
+    memberUserId,
+    req.body.role
+  );
 
-    return res.status(200).json({
-      success: true,
-      message: "Project updated successfully",
-      data: project,
-    });
-  } catch (error) {
-    console.error("Update project error:", error);
+  return res.status(201).json({
+    success: true,
+    message: "Member added successfully",
+    data: project,
+  });
+});
 
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+const getProjectMembers = asyncHandler(async (req, res) => {
+  const members = await projectService.getProjectMembers(
+    req.params.projectId
+  );
 
+  return res.status(200).json({
+    success: true,
+    data: members,
+  });
+});
 
-const deleteProject = async (req, res) => {
-  try {
-    await projectService.deleteProject(
-      req.params.projectId
-    );
+const removeMember = asyncHandler(async (req, res) => {
+  const project = await projectService.removeMember(
+    req.params.projectId,
+    req.params.userId
+  );
 
-    return res.status(200).json({
-      success: true,
-      message: "Project deleted successfully",
-    });
-  } catch (error) {
-    console.error("Delete project error:", error);
+  return res.status(200).json({
+    success: true,
+    message: "Member removed successfully",
+    data: project,
+  });
+});
 
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+const changeMemberRole = asyncHandler(async (req, res) => {
+  const project = await projectService.changeMemberRole(
+    req.params.projectId,
+    req.params.userId,
+    req.body.role
+  );
 
+  return res.status(200).json({
+    success: true,
+    message: "Member role updated successfully",
+    data: project,
+  });
+});
 
 module.exports = {
   createProject,
@@ -110,4 +123,8 @@ module.exports = {
   getProjectById,
   updateProject,
   deleteProject,
+  addMember,
+  getProjectMembers,
+  removeMember,
+  changeMemberRole,
 };
