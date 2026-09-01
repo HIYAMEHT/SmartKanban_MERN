@@ -1,39 +1,37 @@
-export const validateRegister = (req, res, next) => {
-    const { name, email, password } = req.body;
+const Joi = require("joi");
 
-    if (!name || !email || !password) {
-        return res.status(400).json({
-            success: false,
-            message: "Name, email and password are required"
-        });
-    }
+const validateSchema = (schema) => (req, res, next) => {
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
 
-    if (name.trim().length < 2) {
-        return res.status(400).json({
-            success: false,
-            message: "Name must be at least 2 characters"
-        });
-    }
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details.map((detail) => detail.message).join(", "),
+    });
+  }
 
-    if (password.length < 6) {
-        return res.status(400).json({
-            success: false,
-            message: "Password must be at least 6 characters"
-        });
-    }
-
-    next();
+  req.body = value;
+  next();
 };
 
-export const validateLogin = (req, res, next) => {
-    const { email, password } = req.body;
+const registerSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(50).required(),
+  email: Joi.string().trim().email().required(),
+  password: Joi.string().min(6).required(),
+});
 
-    if (!email || !password) {
-        return res.status(400).json({
-            success: false,
-            message: "Email and password are required"
-        });
-    }
+const loginSchema = Joi.object({
+  email: Joi.string().trim().email().required(),
+  password: Joi.string().min(6).required(),
+});
 
-    next();
+const validateRegister = validateSchema(registerSchema);
+const validateLogin = validateSchema(loginSchema);
+
+module.exports = {
+  validateRegister,
+  validateLogin,
 };

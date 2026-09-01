@@ -1,141 +1,127 @@
-import User from "../../models/user.model.js";
-import ApiError from "../../utils/apiError.js";
+const User = require("../../models/user.model");
+const ApiError = require("../../utils/apiError");
 
-export const getProfile = async (userId) => {
-    const user = await User.findById(userId).select(
-        "-password"
-    );
+const getProfile = async (userId) => {
+  const user = await User.findById(userId).select("-password");
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return user;
+  return user;
 };
 
-export const updateProfile = async (userId, data) => {
-    const { name, bio } = data;
+const updateProfile = async (userId, data) => {
+  const { name, bio } = data;
+  const updateData = {};
 
-    const updateData = {};
+  if (name !== undefined) {
+    updateData.name = name.trim();
+  }
 
-    if (name !== undefined) {
-        updateData.name = name.trim();
-    }
+  if (bio !== undefined) {
+    updateData.bio = bio.trim();
+  }
 
-    if (bio !== undefined) {
-        updateData.bio = bio.trim();
-    }
+  const user = await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    runValidators: true,
+  }).select("-password");
 
-    const user = await User.findByIdAndUpdate(
-        userId,
-        updateData,
-        {
-            new: true,
-            runValidators: true
-        }
-    ).select("-password");
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
-
-    return user;
+  return user;
 };
 
-export const getSkills = async (userId) => {
-    const user = await User.findById(userId).select(
-        "skills"
-    );
+const getSkills = async (userId) => {
+  const user = await User.findById(userId).select("skills");
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return {
-        skills: user.skills
-    };
+  return { skills: user.skills };
 };
 
-export const updateSkills = async (userId, skills) => {
-    const user = await User.findByIdAndUpdate(
-        userId,
-        {
-            skills: skills.map((skill) => skill.trim())
-        },
-        {
-            new: true,
-            runValidators: true
-        }
-    ).select("skills");
+const updateSkills = async (userId, skills) => {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      skills: skills.map((skill) => skill.trim()),
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  ).select("skills");
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return {
-        skills: user.skills
-    };
+  return { skills: user.skills };
 };
 
-export const getAvailability = async (userId) => {
-    const user = await User.findById(userId).select(
-        "availability"
-    );
+const getAvailability = async (userId) => {
+  const user = await User.findById(userId).select("availability");
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return {
-        availability: user.availability
-    };
+  return { availability: user.availability };
 };
 
-export const updateAvailability = async (userId, data) => {
-    const updateData = {};
+const updateAvailability = async (userId, data) => {
+  const updateData = {};
 
-    if (data.status !== undefined) {
-        updateData["availability.status"] = data.status;
-    }
+  if (data.status !== undefined) {
+    updateData["availability.status"] = data.status;
+  }
 
-    if (data.hoursPerDay !== undefined) {
-        updateData["availability.hoursPerDay"] =
-            data.hoursPerDay;
-    }
+  if (data.hoursPerDay !== undefined) {
+    updateData["availability.hoursPerDay"] = data.hoursPerDay;
+  }
 
-    const user = await User.findByIdAndUpdate(
-        userId,
-        {
-            $set: updateData
-        },
-        {
-            new: true,
-            runValidators: true
-        }
-    ).select("availability");
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: updateData },
+    {
+      new: true,
+      runValidators: true,
+    },
+  ).select("availability");
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return {
-        availability: user.availability
-    };
+  return { availability: user.availability };
 };
 
-export const getUserIntelligence = async (userId) => {
-    const user = await User.findById(userId).select(
-        "role skills availability"
-    );
+const getUserIntelligence = async (userId) => {
+  const user = await User.findById(userId).select("role skills availability");
 
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
-    return {
-        userId: user._id,
-        role: user.role,
-        skills: user.skills,
-        availability: user.availability
-    };
+  return {
+    userId: user._id,
+    role: user.role,
+    skills: user.skills,
+    availability: user.availability,
+  };
+};
+
+module.exports = {
+  getProfile,
+  updateProfile,
+  getSkills,
+  updateSkills,
+  getAvailability,
+  updateAvailability,
+  getUserIntelligence,
 };

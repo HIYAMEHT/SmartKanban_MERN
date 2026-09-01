@@ -1,69 +1,45 @@
-export const validateProfileUpdate = (req, res, next) => {
-    const { name, bio } = req.body;
+const Joi = require("joi");
 
-    if (name !== undefined) {
-        if (typeof name !== "string" || name.trim().length < 2) {
-            return res.status(400).json({
-                success: false,
-                message: "Name must be at least 2 characters"
-            });
-        }
-    }
+const validateSchema = (schema) => (req, res, next) => {
+  const { error, value } = schema.validate(req.body, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
 
-    if (bio !== undefined && typeof bio !== "string") {
-        return res.status(400).json({
-            success: false,
-            message: "Bio must be a string"
-        });
-    }
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details.map((detail) => detail.message).join(", "),
+    });
+  }
 
-    next();
+  req.body = value;
+  next();
 };
 
-export const validateSkillsUpdate = (req, res, next) => {
-    const { skills } = req.body;
+const profileUpdateSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(50),
+  bio: Joi.string().trim().max(500).allow(""),
+}).min(1);
 
-    if (!Array.isArray(skills)) {
-        return res.status(400).json({
-            success: false,
-            message: "Skills must be an array"
-        });
-    }
+const skillsUpdateSchema = Joi.object({
+  skills: Joi.array()
+    .items(Joi.string().trim().min(1).required())
+    .min(1)
+    .required(),
+});
 
-    if (skills.some((skill) => typeof skill !== "string")) {
-        return res.status(400).json({
-            success: false,
-            message: "Each skill must be a string"
-        });
-    }
+const availabilityUpdateSchema = Joi.object({
+  status: Joi.string().valid("available", "unavailable"),
+  hoursPerDay: Joi.number().min(0).max(24),
+}).min(1);
 
-    next();
-};
+const validateProfileUpdate = validateSchema(profileUpdateSchema);
+const validateSkillsUpdate = validateSchema(skillsUpdateSchema);
+const validateAvailabilityUpdate = validateSchema(availabilityUpdateSchema);
 
-export const validateAvailabilityUpdate = (req, res, next) => {
-    const { status, hoursPerDay } = req.body;
-
-    if (
-        status !== undefined &&
-        !["available", "unavailable"].includes(status)
-    ) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid availability status"
-        });
-    }
-
-    if (
-        hoursPerDay !== undefined &&
-        (typeof hoursPerDay !== "number" ||
-            hoursPerDay < 0 ||
-            hoursPerDay > 24)
-    ) {
-        return res.status(400).json({
-            success: false,
-            message: "Hours per day must be between 0 and 24"
-        });
-    }
-
-    next();
+module.exports = {
+  validateProfileUpdate,
+  validateSkillsUpdate,
+  validateAvailabilityUpdate,
 };
