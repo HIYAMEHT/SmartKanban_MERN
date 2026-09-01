@@ -1,25 +1,13 @@
-/**
- * Reusable task event service for the SmartKanban real-time collaboration module.
- *
- * This module is intentionally independent from the existing task implementation so
- * teammates can later import and call these functions from their own Task-related
- * controllers without modifying the existing application structure.
- */
+
 
 const { EVENT_TYPES } = require('../events/eventTypes');
 
-/**
- * Build the project room name used for real-time communication.
- *
- * projectId is required because all task updates are scoped to a project room.
- * Events should be sent only to users who are currently viewing or collaborating in
- * that project, not to unrelated users in other teams or projects.
- *
- * @param {string} projectId
- * @returns {string}
- */
 function buildProjectRoom(projectId) {
-  return `project:${projectId}`;
+  if (typeof projectId !== 'string' || !projectId.trim()) {
+    return null;
+  }
+
+  return `project:${projectId.trim()}`;
 }
 
 /**
@@ -34,16 +22,24 @@ function buildProjectRoom(projectId) {
  * @returns {void}
  */
 function emitTaskAssigned(io, payload = {}) {
-  const { projectId, taskId, assignedTo, assignedBy } = payload;
+  if (!io || typeof io.to !== 'function') {
+    throw new Error('emitTaskAssigned requires a valid Socket.IO server instance.');
+  }
 
-  if (!projectId) {
-    throw new Error('emitTaskAssigned requires a projectId in the payload.');
+  const { projectId, taskId, assignedTo, assignedBy } = payload || {};
+
+  if (typeof projectId !== 'string' || !projectId.trim()) {
+    throw new Error('emitTaskAssigned requires a valid projectId in the payload.');
+  }
+
+  if (!taskId) {
+    throw new Error('emitTaskAssigned requires a taskId in the payload.');
   }
 
   const room = buildProjectRoom(projectId);
   const eventPayload = {
     taskId,
-    projectId,
+    projectId: projectId.trim(),
     assignedTo,
     assignedBy,
     timestamp: new Date().toISOString(),
@@ -65,16 +61,24 @@ function emitTaskAssigned(io, payload = {}) {
  * @returns {void}
  */
 function emitTaskStatusChanged(io, payload = {}) {
-  const { projectId, taskId, previousStatus, newStatus, changedBy } = payload;
+  if (!io || typeof io.to !== 'function') {
+    throw new Error('emitTaskStatusChanged requires a valid Socket.IO server instance.');
+  }
 
-  if (!projectId) {
-    throw new Error('emitTaskStatusChanged requires a projectId in the payload.');
+  const { projectId, taskId, previousStatus, newStatus, changedBy } = payload || {};
+
+  if (typeof projectId !== 'string' || !projectId.trim()) {
+    throw new Error('emitTaskStatusChanged requires a valid projectId in the payload.');
+  }
+
+  if (!taskId) {
+    throw new Error('emitTaskStatusChanged requires a taskId in the payload.');
   }
 
   const room = buildProjectRoom(projectId);
   const eventPayload = {
     taskId,
-    projectId,
+    projectId: projectId.trim(),
     previousStatus,
     newStatus,
     changedBy,
@@ -96,16 +100,24 @@ function emitTaskStatusChanged(io, payload = {}) {
  * @returns {void}
  */
 function emitTaskUpdated(io, payload = {}) {
-  const { projectId, taskId, updatedBy, changes } = payload;
+  if (!io || typeof io.to !== 'function') {
+    throw new Error('emitTaskUpdated requires a valid Socket.IO server instance.');
+  }
 
-  if (!projectId) {
-    throw new Error('emitTaskUpdated requires a projectId in the payload.');
+  const { projectId, taskId, updatedBy, changes } = payload || {};
+
+  if (typeof projectId !== 'string' || !projectId.trim()) {
+    throw new Error('emitTaskUpdated requires a valid projectId in the payload.');
+  }
+
+  if (!taskId) {
+    throw new Error('emitTaskUpdated requires a taskId in the payload.');
   }
 
   const room = buildProjectRoom(projectId);
   const eventPayload = {
     taskId,
-    projectId,
+    projectId: projectId.trim(),
     updatedBy,
     changes,
     timestamp: new Date().toISOString(),

@@ -20,6 +20,12 @@ function initializeRealtime(io) {
     throw new Error('initializeRealtime requires a valid Socket.IO server instance.');
   }
 
+  if (io.__smartkanbanRealtimeInitialized) {
+    return io;
+  }
+
+  io.__smartkanbanRealtimeInitialized = true;
+
   io.on('connection', (socket) => {
     // Log each client connection for debugging and monitoring.
     console.log(`[Socket.IO] Client connected: ${socket.id}`);
@@ -39,18 +45,21 @@ function initializeRealtime(io) {
      * Room name format:
      * project:<projectId>
      */
-    socket.on('joinProject', ({ projectId } = {}) => {
-      if (!projectId) {
-        console.warn('[Socket.IO] joinProject called without a projectId');
+    socket.on('joinProject', (payload = {}) => {
+      const safePayload = payload && typeof payload === 'object' ? payload : {};
+      const projectId = safePayload.projectId;
+
+      if (typeof projectId !== 'string' || !projectId.trim()) {
+        console.warn('[Socket.IO] joinProject called without a valid projectId');
         return;
       }
 
-      const roomName = `project:${projectId}`;
+      const normalizedProjectId = projectId.trim();
+      const roomName = `project:${normalizedProjectId}`;
       socket.join(roomName);
 
-      // Emit back to the joining client so it knows the room was accepted.
       socket.emit('joinedProject', {
-        projectId,
+        projectId: normalizedProjectId,
         room: roomName,
         socketId: socket.id,
       });
@@ -66,17 +75,21 @@ function initializeRealtime(io) {
      *   projectId: "123"
      * }
      */
-    socket.on('leaveProject', ({ projectId } = {}) => {
-      if (!projectId) {
-        console.warn('[Socket.IO] leaveProject called without a projectId');
+    socket.on('leaveProject', (payload = {}) => {
+      const safePayload = payload && typeof payload === 'object' ? payload : {};
+      const projectId = safePayload.projectId;
+
+      if (typeof projectId !== 'string' || !projectId.trim()) {
+        console.warn('[Socket.IO] leaveProject called without a valid projectId');
         return;
       }
 
-      const roomName = `project:${projectId}`;
+      const normalizedProjectId = projectId.trim();
+      const roomName = `project:${normalizedProjectId}`;
       socket.leave(roomName);
 
       socket.emit('leftProject', {
-        projectId,
+        projectId: normalizedProjectId,
         room: roomName,
         socketId: socket.id,
       });
