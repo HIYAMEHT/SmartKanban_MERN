@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
-const User = require("../../models/user.model");
+const User = require("./user.model");
 const ApiError = require("../../utils/apiError");
 const {
   generateAccessToken,

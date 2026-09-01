@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ProjectModel = require("../../models/projectModel");
+const ProjectModel = require("./projectModel");
 
 
 const createProject = async (data) => {
