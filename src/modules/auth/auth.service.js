@@ -23,7 +23,15 @@ const buildUserResponse = (user) => ({
   createdAt: user.createdAt,
 });
 
-const registerUser = async ({ name, email, password }) => {
+const registerUser = async ({
+  name,
+  email,
+  password,
+  bio,
+  role,
+  skills,
+  availability,
+}) => {
   const existingUser = await User.findOne({ email: email.toLowerCase() });
 
   if (existingUser) {
@@ -35,6 +43,15 @@ const registerUser = async ({ name, email, password }) => {
     name,
     email: email.toLowerCase(),
     password: hashedPassword,
+    bio: bio || "",
+    role: role || "user",
+    skills: Array.isArray(skills)
+      ? skills.map((skill) => String(skill).trim()).filter(Boolean)
+      : [],
+    availability: availability || {
+      status: "available",
+      hoursPerDay: 8,
+    },
   });
 
   const accessToken = generateAccessToken(user._id);

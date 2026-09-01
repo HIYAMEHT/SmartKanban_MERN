@@ -21,7 +21,14 @@ const registerSchema = Joi.object({
   name: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().trim().email().required(),
   password: Joi.string().min(6).required(),
-});
+  bio: Joi.string().trim().max(500).allow("", null).optional(),
+  role: Joi.string().valid("user", "admin").optional(),
+  skills: Joi.array().items(Joi.string().trim().min(1)).default([]),
+  availability: Joi.object({
+    status: Joi.string().valid("available", "unavailable").optional(),
+    hoursPerDay: Joi.number().min(0).max(24).optional(),
+  }).optional(),
+}).unknown(true);
 
 const loginSchema = Joi.object({
   email: Joi.string().trim().email().required(),
