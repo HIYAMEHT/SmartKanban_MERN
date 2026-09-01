@@ -2,13 +2,19 @@ const express = require("express");
 
 const timeTrackingRouter = express.Router();
 
-const {
-  startTimerController,
-  stopTimerController,
-} = require("./timeTracking.controller");
+const timeTrackingController = require("./timeTracking.controller");
+const authMiddleware = require("../../middlewares/auth.middleware");
 
-timeTrackingRouter.post("/start", startTimerController);
+timeTrackingRouter.post(
+  "/start",
+  authMiddleware,
+  timeTrackingController.startTimerController
+);
 
-timeTrackingRouter.post("/stop", stopTimerController);
+timeTrackingRouter.post(
+  "/stop",
+  authMiddleware,
+  timeTrackingController.stopTimerController
+);
 
 module.exports = timeTrackingRouter;
