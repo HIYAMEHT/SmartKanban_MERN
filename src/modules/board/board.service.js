@@ -1,5 +1,5 @@
-const Board = require("../../models/board.model");
-const Task = require("../../models/task.model");
+const Board = require("./board.model");
+const Task = require("../task/task.model");
 const ApiError = require("../../utils/apiError");
 
 const getAllBoards = async (userId) => {

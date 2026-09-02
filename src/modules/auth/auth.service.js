@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const User = require("./user.model");
+
 const ApiError = require("../../utils/apiError");
 const {
   generateAccessToken,
@@ -53,9 +54,10 @@ const registerUser = async ({
       hoursPerDay: 8,
     },
   });
-
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
+const accessToken = generateAccessToken(user);
+const refreshToken = generateRefreshToken(user);
+  // const accessToken = generateAccessToken(user._id);
+  // const refreshToken = generateRefreshToken(user._id);
   const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   user.refreshToken = hashToken(refreshToken);
@@ -74,24 +76,34 @@ const registerUser = async ({
 };
 
 const loginUser = async ({ email, password }) => {
-  const user = await User.findOne({ email: email.toLowerCase() });
+  const user = await User.findOne({
+    email: email.toLowerCase(),
+  });
 
   if (!user) {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(
+    password,
+    user.password
+  );
 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
-  const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  // IMPORTANT: pass complete user
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  const refreshTokenExpiresAt = new Date(
+    Date.now() + 7 * 24 * 60 * 60 * 1000
+  );
 
   user.refreshToken = hashToken(refreshToken);
   user.refreshTokenExpiresAt = refreshTokenExpiresAt;
+
   await user.save();
 
   return {

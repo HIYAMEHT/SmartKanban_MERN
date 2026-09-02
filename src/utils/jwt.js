@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 
 const getAccessSecret = () => {
-  const secret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
+  const secret =
+    process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
 
   if (!secret) {
     throw new Error("JWT_ACCESS_SECRET is missing");
@@ -11,7 +12,8 @@ const getAccessSecret = () => {
 };
 
 const getRefreshSecret = () => {
-  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  const secret =
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
 
   if (!secret) {
     throw new Error("JWT_REFRESH_SECRET is missing");
@@ -20,18 +22,31 @@ const getRefreshSecret = () => {
   return secret;
 };
 
+// Get user ID whether a user object or ID is provided
 const getUserId = (user) => {
   if (!user) return null;
 
-  if (typeof user === "string") return user;
-  if (user._id) return user._id.toString();
-  if (user.userId) return user.userId.toString();
+  if (typeof user === "string") {
+    return user;
+  }
+
+  if (user._id) {
+    return user._id.toString();
+  }
+
+  if (user.userId) {
+    return user.userId.toString();
+  }
 
   return null;
 };
 
+// Get role from user object
 const getUserRole = (user) => {
-  if (!user || typeof user !== "object") return undefined;
+  if (!user || typeof user !== "object") {
+    return undefined;
+  }
+
   return user.role;
 };
 
@@ -51,7 +66,7 @@ const generateAccessToken = (user) => {
     getAccessSecret(),
     {
       expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
-    },
+    }
   );
 };
 
@@ -71,7 +86,7 @@ const generateRefreshToken = (user) => {
     getRefreshSecret(),
     {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
-    },
+    }
   );
 };
 
