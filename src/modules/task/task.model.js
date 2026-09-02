@@ -78,7 +78,7 @@ const taskSchema = new mongoose.Schema(
       default: null,
     },
 
-    // Alternative due date field from TaskKanban branch
+    // Alternative due date
     dueDate: {
       type: Date,
       default: null,
@@ -115,4 +115,4 @@ taskSchema.pre("save", function () {
 
 const Task = mongoose.model("Task", taskSchema);
 
-module.exports =
+module.exports = Task;
