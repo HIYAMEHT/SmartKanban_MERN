@@ -11,6 +11,12 @@ const userRoutes = require("./modules/user/user.routes");
 const boardRoutes = require("./modules/board/board.routes");
 const taskRoutes = require("./modules/task/task.route");
 
+// Smart Workload routes
+const workloadRouter = require("./modules/workload/routes/workload.routes");
+const deadlineRouter = require("./modules/workload/routes/deadline.routes");
+const capacityRouter = require("./modules/workload/routes/capacity.routes");
+const recommendRouter = require("./modules/recommendation/recommendation.routes");
+
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
@@ -57,7 +63,7 @@ app.get("/", (req, res) => {
 });
 
 // =======================
-// Routes
+// Main Routes
 // =======================
 
 app.use("/api/auth", authRoutes);
@@ -65,6 +71,15 @@ app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoute);
 app.use("/api/boards", boardRoutes);
 app.use("/api/tasks", taskRoutes);
+
+// =======================
+// Smart Workload Routes
+// =======================
+
+app.use("/workload", workloadRouter);
+app.use("/deadline", deadlineRouter);
+app.use("/capacity", capacityRouter);
+app.use("/recommend", recommendRouter);
 
 // =======================
 // Error Middleware

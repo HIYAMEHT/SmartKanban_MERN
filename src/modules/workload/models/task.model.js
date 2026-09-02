@@ -6,86 +6,45 @@ const taskSchema = new mongoose.Schema(
       type: String,
       required: [true, "Task title is required"],
       trim: true,
-      minlength: 2,
-      maxlength: 120,
     },
-
     description: {
       type: String,
       trim: true,
-      maxlength: 1000,
-      default: "",
     },
-
-    // Project relationship
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
       required: [true, "Project is required"],
     },
-
-    // Board relationship
-    board: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Board",
-      required: true,
-    },
-
-    // Kanban column
-    column: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    // Assigned user
     assignee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null,
+      default: null, // Null indicates unassigned task
     },
-
-    // Task status
     status: {
       type: String,
       enum: ["To Do", "In Progress", "Review", "Completed"],
       default: "To Do",
     },
-
-    // Task priority
     priority: {
       type: String,
       enum: ["Low", "Medium", "High"],
       default: "Medium",
     },
-
-    // Estimated time
     estimatedHours: {
       type: Number,
       default: 0,
       min: [0, "Estimated hours cannot be negative"],
     },
-
-    // Skills required for the task
+    
     skillsRequired: {
       type: [String],
       default: [],
     },
-
-    // Task deadline
     deadline: {
       type: Date,
       required: [true, "Deadline is required"],
     },
-
-    // User who created the task
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    // Automatically populated when task is completed
     completedAt: {
       type: Date,
       default: null,
@@ -96,7 +55,7 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-// Set completedAt when task status changes
+// Middleware to set completedAt when task is marked Completed
 taskSchema.pre("save", function () {
   if (this.isModified("status")) {
     if (this.status === "Completed") {
@@ -107,6 +66,5 @@ taskSchema.pre("save", function () {
   }
 });
 
-const Task = mongoose.model("Task", taskSchema);
 
-module.exports = Task;
+module.exports = mongoose.model("Task", taskSchema);

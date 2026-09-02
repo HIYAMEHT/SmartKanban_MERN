@@ -1,7 +1,6 @@
 class ApiError extends Error {
   constructor(statusCode, message, errors = []) {
     super(message);
-
     this.statusCode = statusCode;
     this.success = false;
     this.errors = errors;
@@ -34,12 +33,12 @@ const internalServerError = (message = "Internal server error") => {
   return new ApiError(500, message);
 };
 
-module.exports = {
-  ApiError,
-  badRequest,
-  unauthorized,
-  forbidden,
-  notFound,
-  conflict,
-  internalServerError,
-};
+module.exports = ApiError;
+
+module.exports.ApiError = ApiError;
+module.exports.badRequest = badRequest;
+module.exports.unauthorized = unauthorized;
+module.exports.forbidden = forbidden;
+module.exports.notFound = notFound;
+module.exports.conflict = conflict;
+module.exports.internalServerError = internalServerError;
