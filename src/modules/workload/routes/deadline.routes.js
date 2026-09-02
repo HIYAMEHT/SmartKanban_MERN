@@ -2,9 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 const validate = require("../../../middlewares/validate");
-const {getDeadlinePrediction} = require("../validate/deadline.validate");
+const {getDeadlinePredictionSchema} = require("../validate/deadline.validate");
 const deadlineController = require("../controllers/deadline.controller");
 
-router.get("/:taskId", validate(getDeadlinePrediction),deadlineController.getDeadlinePrediction);
+router.get("/:taskId", validate(getDeadlinePredictionSchema),deadlineController.getDeadlinePrediction);
 
 module.exports = router;

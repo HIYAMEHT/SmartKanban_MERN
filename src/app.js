@@ -14,8 +14,13 @@ app.use(helmet());
 app.use(cors({origin:process.env.CORS_ORIGIN,credentials:true}))
 // app.use(mongoSanitization());
 
-const workloadRoutes = require("./modules/workload/routes/workload.routes");
-
-app.use("/workload", workloadRoutes);
+const workloadRouter = require("./modules/workload/routes/workload.routes");
+const deadlineRouter =  require("./modules/workload/routes/deadline.routes");
+const  capacityRouter = require("./modules/workload/routes/capacity.routes");
+const recommendRouter = require("./modules/recommendation/recommendation.routes");
+app.use("/workload", workloadRouter);
+app.use("/deadline" , deadlineRouter);
+app.use("/capacity" , capacityRouter);
+app.use("/recommend" , recommendRouter);
 
 module.exports = app

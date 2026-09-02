@@ -1,8 +1,8 @@
 const apiError = require("../../../utils/apiError");
 const { NOT_FOUND } = require("../../../utils/httpStatus");
-const User = require("../models/user.model");
-const Project = require("../project/models/project.model");
-const Task = require("../task/models/task.model");
+const User = require("../../auth/auth.model");
+ const Project = require("../../project/project.model");
+const Task = require("../../task/task.model");
 
 const ACTIVE_STATUSES = ["To Do", "In Progress", "Review"];
 
@@ -16,14 +16,14 @@ const getProjectWorkload = async (projectId) => {
 
   const membersWorkload = [];
 
-  for (const memberId of project.members) {
-    const member = await User.findById(memberId);
+  for (const projectMember of project.members) {
+    const member = await User.findById(projectMember.user).select("-password -refreshToken -refreshTokenExpiresAt");
 
     if (!member) continue;
 
     const activeTasks = await Task.find({
       project: projectId,
-      assignee: memberId,
+      assignee: projectMember.user,
       status: { $in: ACTIVE_STATUSES },
     });
 

@@ -1,6 +1,9 @@
 const apiError = require("../../../utils/apiError");
 const { NOT_FOUND } = require("../../../utils/httpStatus");
-const Task = require("../models/task.model");
+// const User = require("../auth/auth.model");
+// const Project = require("../project/project.model");
+const Task = require("../../task/task.model");
+// const TimeLog = require("../../timeTracking/timeTracking.model");
 
 const ACTIVE_STATUSES = ["To Do", "In Progress", "Review"];
 

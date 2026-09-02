@@ -1,6 +1,7 @@
-const User = require("../../user/models/user.model");
-const Task = require("../../task/models/task.model");
-const TimeLog = require("../../timeTracking/models/timeLog.model");
+const User = require("../../auth/auth.model");
+// const Project = require("../project/project.model");
+const Task = require("../../task/task.model");
+const TimeLog = require("../../timeTracking/timeTracking.model");
 const apiError = require("../../../utils/apiError");
 const { NOT_FOUND } = require("../../../utils/httpStatus");
 

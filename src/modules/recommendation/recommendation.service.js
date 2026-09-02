@@ -1,58 +1,77 @@
-const User = require("../models/user.model");
-const Project = require("../models/project.model");
-const Task = require("../models/task.model");
-const { NOT_FOUND, CONFLICT, FORBIDDEN } = require("../../utils/httpStatus");
+
+const User = require("../auth/auth.model");
+const Project = require("../project/project.model");
+const Task = require("../task/task.model");
+
+const {
+  NOT_FOUND,
+  FORBIDDEN,
+} = require("../../utils/httpStatus");
+
 const apiError = require("../../utils/apiError");
 
 const ACTIVE_STATUSES = ["To Do", "In Progress", "Review"];
 
-// GET /recommendations/task/:taskId
+// GET /recommend/task/:taskId
 const getTaskRecommendations = async (taskId) => {
-  const task = await Task.findById(taskId).populate("project");
+  const task = await Task.findById(taskId);
 
   if (!task) {
-    throw apiError(NOT_FOUND , "Task not found");
+    throw apiError(NOT_FOUND, "Task not found");
   }
 
-  const project = await Project.findById(task.project._id);
+  const project = await Project.findById(task.project);
 
   if (!project) {
-     throw apiError(NOT_FOUND , "Project not found");
+    throw apiError(NOT_FOUND, "Project not found");
   }
 
   const recommendations = [];
 
-  // Evaluate each member of the project
-  for (const memberId of project.members) {
-    const member = await User.findById(memberId);
+  // Evaluate every member of the project
+  for (const projectMember of project.members) {
+    const member = await User.findById(projectMember.user);
 
     if (!member) continue;
 
-    // Get active tasks of the member
+    // Get member's active tasks
     const activeTasks = await Task.find({
       assignee: member._id,
       status: { $in: ACTIVE_STATUSES },
     });
 
     const activeHours = activeTasks.reduce(
-      (sum, task) => sum + (task.estimatedHours || 0),
+      (sum, activeTask) =>
+        sum + (activeTask.estimatedHours || 0),
       0
     );
 
+    const capacityHours = member.capacityHours || 0;
+
     const remainingCapacity =
-      member.capacityHours - activeHours;
+      capacityHours - activeHours;
+
+    const taskHours = task.estimatedHours || 0;
+
+    const newTotalHours =
+      activeHours + taskHours;
 
     const willOverload =
-      activeHours + (task.estimatedHours || 0) >
-      member.capacityHours;
+      capacityHours > 0
+        ? newTotalHours > capacityHours
+        : true;
 
+    // -------------------------
     // Skill matching
+    // -------------------------
+
     const requiredSkills = task.skillsRequired || [];
 
     const matchedSkills = requiredSkills.filter((skill) =>
       (member.skills || []).some(
         (memberSkill) =>
-          memberSkill.toLowerCase() === skill.toLowerCase()
+          memberSkill.toLowerCase() ===
+          skill.toLowerCase()
       )
     );
 
@@ -65,28 +84,42 @@ const getTaskRecommendations = async (taskId) => {
           )
         : 100;
 
-    // Recommendation score
-    let score = 50;
+    // -------------------------
+    // Recommendation score (0-100)
+    // -------------------------
 
-    // Skill match: maximum +50
-    score += skillMatchPercentage / 2;
+    let score = 0;
 
-    // Capacity / overload
-    if (willOverload) {
-      score -= 40;
-    } else if (member.capacityHours > 0) {
+    // Skills = 50 points
+    score += skillMatchPercentage * 0.5;
+
+    // Capacity = 35 points
+    if (!willOverload && capacityHours > 0) {
       const capacityRatio =
-        remainingCapacity / member.capacityHours;
+        Math.max(0, remainingCapacity) / capacityHours;
 
-      score += Math.round(capacityRatio * 20);
+      score += Math.round(capacityRatio * 35);
+    } else if (willOverload) {
+      score -= 30;
     }
 
-    // Workload balancing
+    // Workload balancing = 15 points
     if (activeHours === 0) {
       score += 15;
+    } else if (
+      capacityHours > 0 &&
+      activeHours < capacityHours
+    ) {
+      score += 7;
     }
 
+    // Always keep score between 0 and 100
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    // -------------------------
     // Suitability
+    // -------------------------
+
     let suitability = "Good Option";
     let comment = "";
 
@@ -95,15 +128,14 @@ const getTaskRecommendations = async (taskId) => {
       skillMatchCount === 0
     ) {
       suitability = "Not Ideal";
+
       comment =
         "Lacks required skills, but has available capacity.";
     } else if (willOverload) {
       suitability = "Risk of Overload";
 
       const overloadHours =
-        activeHours +
-        (task.estimatedHours || 0) -
-        member.capacityHours;
+        newTotalHours - capacityHours;
 
       comment =
         `Has required skills (${matchedSkills.join(
@@ -111,14 +143,14 @@ const getTaskRecommendations = async (taskId) => {
         )}), but this task will overload them by ${overloadHours}h.`;
     } else if (
       skillMatchCount === requiredSkills.length &&
-      remainingCapacity >= (task.estimatedHours || 0)
+      remainingCapacity >= taskHours
     ) {
       suitability = "Perfect Match";
 
       comment =
         `Has all required skills (${matchedSkills.join(
           ", "
-        )}) and ample remaining capacity (${remainingCapacity}h available).`;
+        )}) and ${remainingCapacity}h available capacity.`;
     } else {
       comment =
         `Matches skills (${matchedSkills.join(
@@ -135,13 +167,16 @@ const getTaskRecommendations = async (taskId) => {
         skills: member.skills,
         capacityHours: member.capacityHours,
       },
+
       skillMatchCount,
       matchedSkills,
       totalSkillsRequired: requiredSkills.length,
       skillMatchPercentage,
+
       activeHours,
       remainingCapacity,
       willOverload,
+
       score,
       suitability,
       comment,
@@ -162,47 +197,49 @@ const getTaskRecommendations = async (taskId) => {
       deadline: task.deadline,
       assignee: task.assignee,
     },
+
     recommendations,
   };
 };
 
 
-// POST /recommendations/assign-task
+// POST /recommend/assign-task
 const assignTask = async (taskId, userId) => {
   const task = await Task.findById(taskId);
 
   if (!task) {
-     throw apiError(NOT_FOUND , "Task not found");
+    throw apiError(NOT_FOUND, "Task not found");
   }
 
- 
- if (!userId) {
-   throw apiError(NOT_FOUND , "UserId is required");
-}
+  if (!userId) {
+    throw apiError(NOT_FOUND, "UserId is required");
+  }
 
   const member = await User.findById(userId);
 
   if (!member) {
-     throw apiError(NOT_FOUND , "Assignee not found");
+    throw apiError(NOT_FOUND, "Assignee not found");
   }
 
-  // Check project
+  // Find task's project
   const project = await Project.findById(task.project);
 
   if (!project) {
-     throw apiError(NOT_FOUND , "Project not found");
+    throw apiError(NOT_FOUND, "Project not found");
   }
 
-  // IMPORTANT:
-  // Do not automatically add the user to the project.
-  // The user should already be a project member.
+  // Check whether user belongs to project
   const isProjectMember = project.members.some(
-    (memberId) =>
-      memberId.toString() === member._id.toString()
+    (projectMember) =>
+      projectMember.user.toString() ===
+      member._id.toString()
   );
 
   if (!isProjectMember) {
-   throw apiError(FORBIDDEN , "User is not a member of this project");
+    throw apiError(
+      FORBIDDEN,
+      "User is not a member of this project"
+    );
   }
 
   // Calculate current workload
@@ -213,15 +250,22 @@ const assignTask = async (taskId, userId) => {
   });
 
   const activeHours = activeTasks.reduce(
-    (sum, task) => sum + (task.estimatedHours || 0),
+    (sum, activeTask) =>
+      sum + (activeTask.estimatedHours || 0),
     0
   );
 
+  const taskHours = task.estimatedHours || 0;
+
+  const capacityHours = member.capacityHours || 0;
+
   const newTotalHours =
-    activeHours + (task.estimatedHours || 0);
+    activeHours + taskHours;
 
   const willOverload =
-    newTotalHours > member.capacityHours;
+    capacityHours > 0
+      ? newTotalHours > capacityHours
+      : true;
 
   // Assign task
   task.assignee = member._id;
@@ -229,13 +273,14 @@ const assignTask = async (taskId, userId) => {
   await task.save();
 
   return {
-    success: true,
     overloaded: willOverload,
+
     message: willOverload
       ? `Task assigned successfully. Warning: ${member.name} will be overloaded by ${
-          newTotalHours - member.capacityHours
+          newTotalHours - capacityHours
         } hours.`
       : `Task assigned successfully to ${member.name}.`,
+
     task,
   };
 };
@@ -245,3 +290,4 @@ module.exports = {
   getTaskRecommendations,
   assignTask,
 };
+

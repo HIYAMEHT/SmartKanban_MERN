@@ -7,7 +7,7 @@ const {
   assignTaskSchema,
 } = require("./recommendation.validate");
 // Get task recommendations
-router.get("/task/:taskId",validate(getTaskRecommendationsSchema), recommendationController.getTaskRecommendations);
+router.get("/task/:taskId",validate(getTaskRecommendationsSchema , "params"), recommendationController.getTaskRecommendations);
 
 // Assign task to a user
 router.post("/assign-task",validate(assignTaskSchema), recommendationController.assignTask);

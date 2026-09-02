@@ -1,5 +1,7 @@
 
+const apiResponse = require("../../../utils/apiResponse");
 const asyncHandler = require("../../../utils/asyncHandler");
+const { OK } = require("../../../utils/httpStatus");
 const workloadService = require("../services/workload.service");
 
 // GET /workload/project/:projectId
@@ -9,7 +11,7 @@ const getProjectWorkload = asyncHandler(async (req, res, next) => {
 
     const data = await workloadService.getProjectWorkload(projectId);
 
-    res.status(OK).json(OK,data,"Project workload fetch successfully");
+    res.status(OK).json(apiResponse(OK,data,"Project workload fetch successfully"));
  
 });
 
@@ -20,7 +22,7 @@ const getMemberWorkload = asyncHandler(async (req, res, next) => {
 
     const data = await workloadService.getMemberWorkload(userId);
 
-    res.status(OK).json(OK,data,"Member workload fetch successfully");
+    res.status(OK).json(apiResponse(OK,data,"Member workload fetch successfully"));
  
 });
 
@@ -29,7 +31,7 @@ const getOverloadedMembers = asyncHandler(async (req, res, next) => {
  
     const data = await workloadService.getOverloadedMembers();
 
-    res.status(OK).json(OK,data,"Overloaded members fetch successfully");
+    res.status(OK).json(apiResponse(OK,data,"Overloaded members fetch successfully"));
  
 });
 

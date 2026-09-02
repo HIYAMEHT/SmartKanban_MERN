@@ -1,6 +1,7 @@
 const asyncHandler = require("../../utils/asyncHandler");
 const recommendationService = require("./recommendation.service");
-
+const {OK} = require("../../utils/httpStatus");
+const apiResponse = require("../../utils/apiResponse");
 // GET /recommendations/task/:taskId
 const getTaskRecommendations =asyncHandler(  async (req, res) => {
  
@@ -9,7 +10,7 @@ const getTaskRecommendations =asyncHandler(  async (req, res) => {
     const data =
       await recommendationService.getTaskRecommendations(taskId);
 
-    res.status(OK).json(OK,data,"Task recommendation fetch successfully");
+    res.status(OK).json(apiResponse(  OK,data,"Task recommendation fetch successfully"));
   
 });
 

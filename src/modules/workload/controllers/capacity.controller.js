@@ -8,7 +8,7 @@ const getMemberCapacity = asyncHandler(async (req, res) => {
 
   const data = await capacityService.getMemberCapacity(userId);
 
-  res.status(OK).json(OK,data,"Member capacity fetch successfully");
+  res.status(OK).json(apiResponse(OK,data,"Member capacity fetch successfully"));
 });
 
 module.exports = {
