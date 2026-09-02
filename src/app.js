@@ -17,6 +17,10 @@ const deadlineRouter = require("./modules/workload/routes/deadline.routes");
 const capacityRouter = require("./modules/workload/routes/capacity.routes");
 const recommendRouter = require("./modules/recommendation/recommendation.routes");
 
+// Time Tracking & Analytics routes
+const timeTrackingRoutes = require("./modules/timeTracking/timeTracking.routes");
+const analyticsRoutes = require("./modules/analytics/analytics.routes");
+
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
@@ -62,40 +66,3 @@ app.get("/", (req, res) => {
   });
 });
 
-// =======================
-// Main Routes
-// =======================
-
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/projects", projectRoute);
-app.use("/api/boards", boardRoutes);
-app.use("/api/tasks", taskRoutes);
-
-// =======================
-// Smart Workload Routes
-// =======================
-
-app.use("/workload", workloadRouter);
-app.use("/deadline", deadlineRouter);
-app.use("/capacity", capacityRouter);
-app.use("/recommend", recommendRouter);
-
-// =======================
-// Error Middleware
-// =======================
-
-app.use(errorMiddleware);
-
-// =======================
-// 404 Handler
-// =======================
-
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
-
-module.exports = app;
