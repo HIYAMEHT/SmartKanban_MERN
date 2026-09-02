@@ -1,6 +1,6 @@
 const apiError = require('../../utils/apiError') ;
 const TimeLog = require('../timeTracking/timeTracking.model')
-const Task = require("../../models/task.model");
+const Task = require("../task/task.model");
 const {CONFLICT, NOT_FOUND} = require('../../utils/httpStatus');
 
 const startTimer = async (userId, taskId) => {

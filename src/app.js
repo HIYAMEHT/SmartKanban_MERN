@@ -66,3 +66,43 @@ app.get("/", (req, res) => {
   });
 });
 
+// =======================
+// Routes
+// =======================
+
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/projects", projectRoute);
+app.use("/api/boards", boardRoutes);
+app.use("/api/tasks", taskRoutes);
+
+app.use("/workload", workloadRouter);
+app.use("/deadline", deadlineRouter);
+app.use("/capacity", capacityRouter);
+app.use("/recommend", recommendRouter);
+
+app.use("/api/time-tracking", timeTrackingRoutes);
+app.use("/api/analytics", analyticsRoutes);
+
+// =======================
+// Error Handler
+// =======================
+
+app.use(errorMiddleware);
+
+// =======================
+// 404 Handler
+// =======================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+
+// =======================
+// Export
+// =======================
+
+module.exports = app;

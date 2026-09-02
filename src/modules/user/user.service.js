@@ -1,4 +1,4 @@
-const User = require("../auth/user.model");
+const User = require("./user.model");
 const ApiError = require("../../utils/apiError");
 
 const getProfile = async (userId) => {

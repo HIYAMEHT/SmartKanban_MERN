@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const Task = require("./task.model");
 
-const Project = require("../project/projectModel");
-const User = require("../auth/userModel");
+const Project = require("../project/project.model");
+const User = require("../user/user.model");
 
 const { badRequest, notFound } = require("../../utils/apiError");
 

@@ -1,6 +1,6 @@
 const apiError = require("../../../utils/apiError");
 const { NOT_FOUND } = require("../../../utils/httpStatus");
-const User = require("../../auth/auth.model");
+const User = require("../../user/user.model");
  const Project = require("../../project/project.model");
 const Task = require("../../task/task.model");
 

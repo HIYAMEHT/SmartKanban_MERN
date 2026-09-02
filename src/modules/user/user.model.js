@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
       minlength: 2,
       maxlength: 50,
     },
+
     email: {
       type: String,
       required: true,
@@ -17,40 +18,48 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     password: {
       type: String,
       required: true,
       minlength: 6,
     },
+
     bio: {
       type: String,
       trim: true,
       maxlength: 500,
       default: "",
     },
+
     role: {
       type: String,
       enum: Object.values(ROLES),
       default: ROLES.USER,
     },
+
     refreshToken: {
       type: String,
       default: "",
     },
+
     refreshTokenExpiresAt: {
       type: Date,
       default: null,
     },
+
     skills: {
       type: [String],
       default: [],
     },
+
     availability: {
       status: {
         type: String,
         enum: ["available", "unavailable"],
         default: "available",
       },
+
       hoursPerDay: {
         type: Number,
         min: 0,
@@ -61,7 +70,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const User = mongoose.model("User", userSchema);

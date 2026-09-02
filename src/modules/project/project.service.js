@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const ProjectModel = require("./project.model");
-const UserModel = require("../auth/user.model");
+const UserModel = require("../user/user.model");
 
 // ============================
 // CREATE PROJECT
