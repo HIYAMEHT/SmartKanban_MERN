@@ -1,9 +1,45 @@
-function ApiError(statusCode, message) {
-  const error = new Error(message);
-  error.statusCode = statusCode;
-  error.success = false;
-  return error;
+class ApiError extends Error {
+  constructor(statusCode, message, errors = []) {
+    super(message);
+
+    this.statusCode = statusCode;
+    this.success = false;
+    this.errors = errors;
+
+    Error.captureStackTrace(this, this.constructor);
+  }
 }
 
-module.exports = ApiError;
+const badRequest = (message = "Bad request", errors = []) => {
+  return new ApiError(400, message, errors);
+};
 
+const unauthorized = (message = "Unauthorized") => {
+  return new ApiError(401, message);
+};
+
+const forbidden = (message = "Forbidden") => {
+  return new ApiError(403, message);
+};
+
+const notFound = (message = "Resource not found") => {
+  return new ApiError(404, message);
+};
+
+const conflict = (message = "Conflict") => {
+  return new ApiError(409, message);
+};
+
+const internalServerError = (message = "Internal server error") => {
+  return new ApiError(500, message);
+};
+
+module.exports = {
+  ApiError,
+  badRequest,
+  unauthorized,
+  forbidden,
+  notFound,
+  conflict,
+  internalServerError,
+};
