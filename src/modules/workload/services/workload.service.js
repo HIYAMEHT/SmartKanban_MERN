@@ -6,6 +6,8 @@ const Task = require("../../task/task.model");
 
 const ACTIVE_STATUSES = ["To Do", "In Progress", "Review"];
 
+const getCap = (m) => m.capacityHours || (m.availability?.hoursPerDay ? m.availability.hoursPerDay * 5 : 40);
+
 // Get workload of all members in a project
 const getProjectWorkload = async (projectId) => {
   const project = await Project.findById(projectId);
@@ -33,13 +35,14 @@ const getProjectWorkload = async (projectId) => {
     );
 
     const activeTasksCount = activeTasks.length;
-
-    const overloaded = activeHours > member.capacityHours;
+    const capacityHours = getCap(member);
+    const overloaded = activeHours > capacityHours;
 
     membersWorkload.push({
       member,
       activeTasksCount,
       activeHours,
+      capacityHours,
       overloaded,
       tasks: activeTasks,
     });
@@ -81,12 +84,14 @@ const getMemberWorkload = async (userId) => {
     0
   );
 
-  const overloaded = activeHours > member.capacityHours;
+  const capacityHours = getCap(member);
+  const overloaded = activeHours > capacityHours;
 
   return {
     member,
     activeTasksCount: activeTasks.length,
     activeHours,
+    capacityHours,
     overloaded,
     tasks: activeTasks,
   };
@@ -109,12 +114,14 @@ const getOverloadedMembers = async () => {
       0
     );
 
-    if (activeHours > member.capacityHours) {
+    const capacityHours = getCap(member);
+
+    if (activeHours > capacityHours) {
       overloadedMembers.push({
         member,
         activeHours,
-        capacityHours: member.capacityHours,
-        overloadDelta: activeHours - member.capacityHours,
+        capacityHours,
+        overloadDelta: activeHours - capacityHours,
         activeTasksCount: activeTasks.length,
       });
     }

@@ -73,6 +73,23 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Virtual field
+userSchema.virtual("capacityHours").get(function () {
+  return this.availability &&
+    typeof this.availability.hoursPerDay === "number"
+    ? this.availability.hoursPerDay * 5
+    : 40;
+});
+
+// Include virtual fields in responses
+userSchema.set("toJSON", {
+  virtuals: true,
+});
+
+userSchema.set("toObject", {
+  virtuals: true,
+});
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

@@ -71,16 +71,18 @@ const getMemberCapacity = async (userId) => {
     }
   }
 
+  const capacityHours = member.capacityHours || (member.availability?.hoursPerDay ? member.availability.hoursPerDay * 5 : 40);
+
   const loadPercentage =
-    member.capacityHours > 0
+    capacityHours > 0
       ? parseFloat(
-          ((currentLoadHours / member.capacityHours) * 100).toFixed(1)
+          ((currentLoadHours / capacityHours) * 100).toFixed(1)
         )
       : 0;
 
   return {
     member,
-    capacityHours: member.capacityHours,
+    capacityHours,
     currentLoadHours,
     loadPercentage,
     completedTasksCount,
@@ -89,7 +91,7 @@ const getMemberCapacity = async (userId) => {
     averageEstimatedHours,
     velocityRatio,
     status:
-      currentLoadHours > member.capacityHours
+      currentLoadHours > capacityHours
         ? "Overloaded"
         : "Optimal",
   };

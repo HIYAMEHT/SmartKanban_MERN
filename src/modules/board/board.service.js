@@ -102,11 +102,52 @@ const createTask = async (boardId, userId, data) => {
     throw new ApiError(404, "Board not found");
   }
 
+  // Normalize status
+  let status = "To Do";
+  if (data.status) {
+    const s = String(data.status).toLowerCase();
+    if (s === "in progress" || s === "in-progress") status = "In Progress";
+    else if (s === "review") status = "Review";
+    else if (s === "done" || s === "completed") status = "Completed";
+    else if (s === "to do" || s === "todo") status = "To Do";
+  }
+
+  // Normalize priority
+  let priority = "Medium";
+  if (data.priority) {
+    const p = String(data.priority).toLowerCase();
+    if (p === "low") priority = "Low";
+    else if (p === "high") priority = "High";
+    else if (p === "medium") priority = "Medium";
+  }
+
+  // Column
+  const column = data.column || (status === "Completed" ? "Done" : status);
+
+  // Deadline
+  const deadline = data.deadline || data.dueDate || new Date(Date.now() + 7 * 86400000);
+
+  // Project: if not provided in payload, check if user has any project
+  let project = data.project;
+  if (!project) {
+    const ProjectModel = require("../project/project.model");
+    const userProj = await ProjectModel.findOne({
+      $or: [{ owner: userId }, { "members.user": userId }],
+    });
+    if (userProj) {
+      project = userProj._id;
+    }
+  }
+
   const task = await Task.create({
     ...data,
     board: boardId,
+    project,
     createdBy: userId,
-    status: data.status || "todo",
+    column,
+    status,
+    priority,
+    deadline,
   });
 
   return task;

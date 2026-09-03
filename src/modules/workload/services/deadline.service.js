@@ -52,8 +52,10 @@ const getDeadlinePrediction = async (taskId) => {
     0
   );
 
+  const capacityHours = member.capacityHours || (member.availability?.hoursPerDay ? member.availability.hoursPerDay * 5 : 40);
+
   // Daily working capacity
-  const dailyHours = member.capacityHours / 5 || 8;
+  const dailyHours = member.availability?.hoursPerDay || (capacityHours / 5) || 8;
 
   // Estimate number of working days needed
   const daysNeeded = totalWorkloadHours / dailyHours;
@@ -92,7 +94,7 @@ const getDeadlinePrediction = async (taskId) => {
     calendarDaysNeeded,
     delayDays,
     totalWorkloadHours,
-    assigneeCapacity: member.capacityHours,
+    assigneeCapacity: capacityHours,
   };
 };
 

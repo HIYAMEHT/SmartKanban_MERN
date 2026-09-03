@@ -4,16 +4,49 @@ const asyncHandler = require("../../utils/asyncHandler");
 const ApiResponse = require("../../utils/apiResponse");
 const { badRequest } = require("../../utils/apiError");
 
-// 1. Create Task
+// =====================================================
+// 1. CREATE TASK
+// POST /api/tasks
+// =====================================================
+
 const createTaskController = asyncHandler(async (req, res) => {
-  const task = await taskService.createTaskService(req.body);
+  const boardId = req.params.boardId || req.body.board;
+
+  if (!boardId) {
+    throw badRequest("Board ID is required");
+  }
+
+  const userId =
+    req.user?.userId ||
+    req.user?._id ||
+    req.user?.id;
+
+  if (!userId) {
+    throw badRequest("User authentication is required");
+  }
+
+  const task = await taskService.createTaskService(
+    boardId,
+    req.body,
+    userId
+  );
 
   return res
     .status(201)
-    .json(new ApiResponse(201, "Task created successfully", task));
+    .json(
+      new ApiResponse(
+        201,
+        task,
+        "Task created successfully"
+      )
+    );
 });
 
-// 2. Get Project Tasks
+// =====================================================
+// 2. GET PROJECT TASKS
+// GET /api/tasks/project/:projectId
+// =====================================================
+
 const getProjectTasksController = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
@@ -21,14 +54,25 @@ const getProjectTasksController = asyncHandler(async (req, res) => {
     throw badRequest("Project ID is required");
   }
 
-  const tasks = await taskService.getProjectTasksService(projectId);
+  const tasks =
+    await taskService.getProjectTasksService(projectId);
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Tasks fetched successfully", tasks));
+    .json(
+      new ApiResponse(
+        200,
+        tasks,
+        "Tasks fetched successfully"
+      )
+    );
 });
 
-// 3. Get Single Task
+// =====================================================
+// 3. GET SINGLE TASK
+// GET /api/tasks/:taskId
+// =====================================================
+
 const getSingleTaskController = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
 
@@ -36,14 +80,25 @@ const getSingleTaskController = asyncHandler(async (req, res) => {
     throw badRequest("Task ID is required");
   }
 
-  const task = await taskService.getSingleTaskService(taskId);
+  const task =
+    await taskService.getSingleTaskService(taskId);
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Task fetched successfully", task));
+    .json(
+      new ApiResponse(
+        200,
+        task,
+        "Task fetched successfully"
+      )
+    );
 });
 
-// 4. Update Task
+// =====================================================
+// 4. UPDATE TASK
+// PATCH /api/tasks/:taskId
+// =====================================================
+
 const updateTaskController = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
 
@@ -51,14 +106,28 @@ const updateTaskController = asyncHandler(async (req, res) => {
     throw badRequest("Task ID is required");
   }
 
-  const task = await taskService.updateTaskService(taskId, req.body);
+  const task =
+    await taskService.updateTaskService(
+      taskId,
+      req.body
+    );
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Task updated successfully", task));
+    .json(
+      new ApiResponse(
+        200,
+        task,
+        "Task updated successfully"
+      )
+    );
 });
 
-// 5. Update Task Status
+// =====================================================
+// 5. UPDATE STATUS
+// PATCH /api/tasks/:taskId/status
+// =====================================================
+
 const updateTaskStatusController = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const { status } = req.body;
@@ -71,14 +140,28 @@ const updateTaskStatusController = asyncHandler(async (req, res) => {
     throw badRequest("Status is required");
   }
 
-  const task = await taskService.updateTaskStatusService(taskId, status);
+  const task =
+    await taskService.updateTaskStatusService(
+      taskId,
+      status
+    );
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Task status updated successfully", task));
+    .json(
+      new ApiResponse(
+        200,
+        task,
+        "Task status updated successfully"
+      )
+    );
 });
 
-// 6. Assign Task
+// =====================================================
+// 6. ASSIGN TASK
+// PATCH /api/tasks/:taskId/assign
+// =====================================================
+
 const assignTaskController = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const { assignee } = req.body;
@@ -91,14 +174,28 @@ const assignTaskController = asyncHandler(async (req, res) => {
     throw badRequest("Assignee is required");
   }
 
-  const task = await taskService.assignTaskService(taskId, assignee);
+  const task =
+    await taskService.assignTaskService(
+      taskId,
+      assignee
+    );
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Task assigned successfully", task));
+    .json(
+      new ApiResponse(
+        200,
+        task,
+        "Task assigned successfully"
+      )
+    );
 });
 
-// 7. Delete Task
+// =====================================================
+// 7. DELETE TASK
+// DELETE /api/tasks/:taskId
+// =====================================================
+
 const deleteTaskController = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
 
@@ -110,7 +207,13 @@ const deleteTaskController = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Task deleted successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        true,
+        "Task deleted successfully"
+      )
+    );
 });
 
 module.exports = {

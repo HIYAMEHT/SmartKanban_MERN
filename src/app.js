@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger-output.json");
+
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
@@ -24,6 +27,8 @@ const analyticsRoutes = require("./modules/analytics/analytics.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // =======================
 // Security

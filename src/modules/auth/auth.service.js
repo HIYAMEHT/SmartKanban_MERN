@@ -177,8 +177,8 @@ const refreshUserSession = async (refreshTokenValue) => {
     throw new ApiError(401, "Refresh token expired");
   }
 
-  const newAccessToken = generateAccessToken(user._id);
-  const newRefreshToken = generateRefreshToken(user._id);
+  const newAccessToken = generateAccessToken(user);
+  const newRefreshToken = generateRefreshToken(user);
   const nextExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   user.refreshToken = hashToken(newRefreshToken);

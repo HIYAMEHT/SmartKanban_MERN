@@ -32,8 +32,13 @@ const timeLogSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Running", "Adjusted", "Completed"],
-      required: [true, "Status is required"],
+      enum: [
+        "Running",
+        "Adjusted",
+        "Completed",
+      ],
+      default: "Running",
+      required: true,
     },
   },
   {
@@ -41,4 +46,5 @@ const timeLogSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("TimeLog", timeLogSchema);
+module.exports =
+  mongoose.model("TimeLog", timeLogSchema);

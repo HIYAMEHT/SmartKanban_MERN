@@ -17,75 +17,75 @@ const taskSchema = new mongoose.Schema(
       default: "",
     },
 
-    // Project relationship
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
-      required: [true, "Project is required"],
+      required: true,
+      index: true,
     },
 
-    // Board relationship
     board: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Board",
       required: true,
+      index: true,
     },
 
-    // Kanban column
     column: {
       type: String,
-      required: true,
       trim: true,
+      default: "To Do",
     },
 
-    // Assigned user
     assignee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
 
-    // Task status
     status: {
       type: String,
-      enum: ["To Do", "In Progress", "Review", "Completed"],
+      enum: [
+        "To Do",
+        "In Progress",
+        "Review",
+        "Completed",
+      ],
       default: "To Do",
     },
 
-    // Task priority
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],
+      enum: [
+        "Low",
+        "Medium",
+        "High",
+      ],
       default: "Medium",
     },
 
-    // Estimated time
     estimatedHours: {
       type: Number,
       default: 0,
-      min: [0, "Estimated hours cannot be negative"],
+      min: 0,
     },
 
-    // Skills required for the task
     skillsRequired: {
       type: [String],
       default: [],
     },
 
-    // Task deadline
     deadline: {
       type: Date,
       required: [true, "Deadline is required"],
     },
 
-    // User who created the task
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    // Automatically populated when task is completed
     completedAt: {
       type: Date,
       default: null,
@@ -96,7 +96,6 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-// Set completedAt when task status changes
 taskSchema.pre("save", function () {
   if (this.isModified("status")) {
     if (this.status === "Completed") {

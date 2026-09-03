@@ -4,7 +4,6 @@ const columnSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 50,
     },
@@ -20,7 +19,6 @@ const boardSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
       trim: true,
       minlength: 2,
       maxlength: 80,

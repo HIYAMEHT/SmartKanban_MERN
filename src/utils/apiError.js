@@ -1,40 +1,46 @@
-class ApiError extends Error {
-  constructor(statusCode, message, errors = []) {
-    super(message);
-    this.statusCode = statusCode;
-    this.success = false;
-    this.errors = errors;
+function ApiError(statusCode, message, errors = []) {
+  const error = new Error(message);
 
-    Error.captureStackTrace(this, this.constructor);
-  }
+  error.name = "ApiError";
+  error.statusCode = statusCode;
+  error.success = false;
+  error.errors = errors;
+
+  Error.captureStackTrace(error, ApiError);
+
+  return error;
 }
 
-const badRequest = (message = "Bad request", errors = []) => {
-  return new ApiError(400, message, errors);
-};
+function badRequest(message = "Bad request", errors = []) {
+  return ApiError(400, message, errors);
+}
 
-const unauthorized = (message = "Unauthorized") => {
-  return new ApiError(401, message);
-};
+function unauthorized(message = "Unauthorized") {
+  return ApiError(401, message);
+}
 
-const forbidden = (message = "Forbidden") => {
-  return new ApiError(403, message);
-};
+function forbidden(message = "Forbidden") {
+  return ApiError(403, message);
+}
 
-const notFound = (message = "Resource not found") => {
-  return new ApiError(404, message);
-};
+function notFound(message = "Resource not found") {
+  return ApiError(404, message);
+}
 
-const conflict = (message = "Conflict") => {
-  return new ApiError(409, message);
-};
+function conflict(message = "Conflict") {
+  return ApiError(409, message);
+}
 
-const internalServerError = (message = "Internal server error") => {
-  return new ApiError(500, message);
-};
+function internalServerError(message = "Internal server error") {
+  return ApiError(500, message);
+}
 
+
+// IMPORTANT
+// Default export
 module.exports = ApiError;
 
+// Named exports
 module.exports.ApiError = ApiError;
 module.exports.badRequest = badRequest;
 module.exports.unauthorized = unauthorized;

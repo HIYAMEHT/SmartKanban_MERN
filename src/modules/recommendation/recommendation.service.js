@@ -46,7 +46,7 @@ const getTaskRecommendations = async (taskId) => {
       0
     );
 
-    const capacityHours = member.capacityHours || 0;
+    const capacityHours = member.capacityHours || (member.availability?.hoursPerDay ? member.availability.hoursPerDay * 5 : 40);
 
     const remainingCapacity =
       capacityHours - activeHours;
@@ -257,7 +257,7 @@ const assignTask = async (taskId, userId) => {
 
   const taskHours = task.estimatedHours || 0;
 
-  const capacityHours = member.capacityHours || 0;
+  const capacityHours = member.capacityHours || (member.availability?.hoursPerDay ? member.availability.hoursPerDay * 5 : 40);
 
   const newTotalHours =
     activeHours + taskHours;

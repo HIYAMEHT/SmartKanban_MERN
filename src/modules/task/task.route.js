@@ -11,7 +11,11 @@ const {
   assignTaskSchema,
 } = require("../task/task.validation");
 
+const authMiddleware = require("../../middlewares/auth.middleware");
+
 const router = express.Router();
+
+router.use(authMiddleware);
 
 // 1. Create Task
 router.post(

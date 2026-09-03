@@ -19,7 +19,9 @@ const projectMemberSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { _id: false }
+  {
+    _id: false,
+  }
 );
 
 const projectSchema = new mongoose.Schema(
@@ -36,18 +38,18 @@ const projectSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: "",
+      maxlength: 500,
     },
 
     deadline: {
       type: Date,
-      // required: true,
-      default:null,
+      default: null,
     },
 
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      // required: true,
+      required: true,
     },
 
     members: {
@@ -60,9 +62,6 @@ const projectSchema = new mongoose.Schema(
   }
 );
 
-const ProjectModel = mongoose.model(
-  "Project",
-  projectSchema
-);
+const ProjectModel = mongoose.model("Project", projectSchema);
 
 module.exports = ProjectModel;

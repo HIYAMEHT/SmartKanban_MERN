@@ -1,58 +1,57 @@
 const express = require("express");
 
-const projectController = require("./project.controller");
+const projectController =
+  require("./project.controller");
 
-const authMiddleware = require("../../middlewares/auth.middleware");
-const authorizeProjectRole = require("../../middlewares/projectRole.middleware");
-const authorizeRole = require("../../middlewares/role.middleware");
+const authMiddleware =
+  require("../../middlewares/auth.middleware");
+
+const authorizeProjectRole =
+  require("../../middlewares/projectRole.middleware");
+
+const authorizeRole =
+  require("../../middlewares/role.middleware");
 
 const router = express.Router();
 
-
-// ======================================
+// =====================================================
 // PROJECT APIs
-// ======================================
+// =====================================================
 
-// Create project
-// ADMIN + MANAGER can create
+// CREATE PROJECT
 router.post(
   "/",
   authMiddleware,
-  authorizeRole("admin", "manager"),
+  authorizeRole("admin", "manager", "projectManager"),
   projectController.createProject
 );
 
-
-// Get all projects
-// Any authenticated user
+// GET PROJECTS
 router.get(
   "/",
   authMiddleware,
   projectController.getProjects
 );
 
-
-// Get project by ID
-// Any authenticated user
+// GET SINGLE PROJECT
 router.get(
   "/:projectId",
   authMiddleware,
   projectController.getProjectById
 );
 
-
-// Update project
-// Project OWNER or project MANAGER
+// UPDATE PROJECT
 router.put(
   "/:projectId",
   authMiddleware,
-  authorizeProjectRole("owner", "manager"),
+  authorizeProjectRole(
+    "owner",
+    "manager"
+  ),
   projectController.updateProject
 );
 
-
-// Delete project
-// Project OWNER only
+// DELETE PROJECT
 router.delete(
   "/:projectId",
   authMiddleware,
@@ -60,49 +59,50 @@ router.delete(
   projectController.deleteProject
 );
 
-
-// ======================================
+// =====================================================
 // TEAM APIs
-// ======================================
+// =====================================================
 
-// Add member
-// Project OWNER or project MANAGER
+// ADD MEMBER
 router.post(
   "/:projectId/members",
   authMiddleware,
-  authorizeProjectRole("owner", "manager"),
+  authorizeProjectRole(
+    "owner",
+    "manager"
+  ),
   projectController.addMember
 );
 
-
-// Get members
-// OWNER, MANAGER, MEMBER
+// GET MEMBERS
 router.get(
   "/:projectId/members",
   authMiddleware,
-  authorizeProjectRole("owner", "manager", "member"),
+  authorizeProjectRole(
+    "owner",
+    "manager",
+    "member"
+  ),
   projectController.getProjectMembers
 );
 
-
-// Remove member
-// Project OWNER or project MANAGER
+// REMOVE MEMBER
 router.delete(
   "/:projectId/members/:userId",
   authMiddleware,
-  authorizeProjectRole("owner", "manager"),
+  authorizeProjectRole(
+    "owner",
+    "manager"
+  ),
   projectController.removeMember
 );
 
-
-// Change member role
-// Project OWNER only
+// CHANGE ROLE
 router.patch(
   "/:projectId/members/:userId/role",
   authMiddleware,
   authorizeProjectRole("owner"),
   projectController.changeMemberRole
 );
-
 
 module.exports = router;

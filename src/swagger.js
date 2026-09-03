@@ -1,18 +1,23 @@
 const swaggerAutogen = require("swagger-autogen")({ openapi: "3.0.0" });
 
 const doc = {
-  info: {
-    title: "Ecom Backend API",
-    description: "E-commerce backend ki auto-generated API documentation",
-    version: "1.0.0",
-  },
+ info: {
+  title: "SmartKanban API",
+  description: "SmartKanban project management API documentation",
+  version: "1.0.0",
+},
   servers: [{ url: "http://localhost:5000" }],
   tags: [
-    { name: "Auth" },
-    { name: "User" },
-    { name: "Category" },
-    { name: "Brand" },
-  ],
+  { name: "Auth" },
+  { name: "Users" },
+  { name: "Projects" },
+  { name: "Boards" },
+  { name: "Tasks" },
+  { name: "Time Tracking" },
+  { name: "Analytics" },
+  { name: "Workload" },
+  { name: "Recommendation" },
+],
   components: {
     securitySchemes: {
       cookieAuth: { type: "apiKey", in: "cookie", name: "accessToken" },

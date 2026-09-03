@@ -1,6 +1,8 @@
 const express = require("express");
 
 const router = express.Router();
+const authMiddleware = require("../../../middlewares/auth.middleware");
+router.use(authMiddleware);
 
 const workloadController = require("../controllers/workload.controller");
 const validate = require("../../../middlewares/validate");

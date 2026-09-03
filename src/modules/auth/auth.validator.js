@@ -22,7 +22,7 @@ const registerSchema = Joi.object({
   email: Joi.string().trim().email().required(),
   password: Joi.string().min(6).required(),
   bio: Joi.string().trim().max(500).allow("", null).optional(),
-  role: Joi.string().valid("user", "admin").optional(),
+  role: Joi.string().valid("user", "projectManager", "admin").optional(),
   skills: Joi.array().items(Joi.string().trim().min(1)).default([]),
   availability: Joi.object({
     status: Joi.string().valid("available", "unavailable").optional(),
